@@ -10,6 +10,7 @@
           :class="getRoute() === 'dashboard-default' ? 'active' : ''"
           :navText="this.$store.state.isRTL ? 'لوحة القيادة' : 'Dashboard'"
         >
+        
           <template v-slot:icon>
             <i class="ni ni-tv-2 text-primary text-sm opacity-10"></i>
           </template>
@@ -112,6 +113,13 @@
           </template>
         </sidenav-item>
       </li>
+      <!-- <li class="nav-item">
+        <a href="#" class="nav-link" @click="logout">
+          <i class="ni ni-user-run"></i>
+          <span class="nav-link-text">Logout</span>
+        </a>
+      </li> -->
+  
     </ul>
   </div>
   <div class="pt-3 mx-3 mt-3 sidenav-footer">
@@ -122,9 +130,12 @@
     />
   </div>
 </template>
+
+
 <script>
 import SidenavItem from "./SidenavItem.vue";
 import SidenavCard from "./SidenavCard.vue";
+
 
 export default {
   name: "SidenavList",
@@ -143,10 +154,12 @@ export default {
     SidenavCard
   },
   methods: {
+    
     getRoute() {
       const routeArr = this.$route.path.split("/");
       return routeArr[1];
     }
   }
+  
 };
 </script>

@@ -96,10 +96,10 @@
               </div>
             </div>
             <div class="card-body">
-              <form role="form">
-                <argon-input type="text" placeholder="Name" aria-label="Name" />
-                <argon-input type="email" placeholder="Email" aria-label="Email" />
-                <argon-input type="password" placeholder="Password" aria-label="Password" />
+              <form @submit.prevent="submitRegister">
+                <argon-input type="name" placeholder="Name" aria-label="Name" v-model="name" />
+              <argon-input type="username" placeholder="Username" aria-label="username" v-model="username" />
+              <argon-input type="password" placeholder="Password" aria-label="Password" v-model="password" />
                 <argon-checkbox checked>
                   <label class="form-check-label" for="flexCheckDefault">
                     I agree the
@@ -119,7 +119,7 @@
                     class="text-dark font-weight-bolder"
                   >Sign in</a>
                 </p>
-              </form>
+             </form>
             </div>
           </div>
         </div>
@@ -130,6 +130,8 @@
 </template>
 
 <script>
+import { mapActions } from 'pinia';
+import d$auth from '@/stores/auth';
 import Navbar from "@/examples/PageLayout/Navbar.vue";
 import AppFooter from "@/examples/PageLayout/Footer.vue";
 import ArgonInput from "@/components/ArgonInput.vue";
@@ -138,7 +140,7 @@ import ArgonButton from "@/components/ArgonButton.vue";
 const body = document.getElementsByTagName("body")[0];
 
 export default {
-  name: "signin",
+  name: "signup",
   components: {
     Navbar,
     AppFooter,
@@ -146,6 +148,13 @@ export default {
     ArgonCheckbox,
     ArgonButton,
   },
+  data() {
+  return {
+    name: '',
+    username: '',
+    password: ''
+  };
+},
   created() {
     this.$store.state.hideConfigButton = true;
     this.$store.state.showNavbar = false;
@@ -160,5 +169,16 @@ export default {
     this.$store.state.showFooter = true;
     body.classList.add("bg-gray-100");
   },
+  methods: {
+  ...mapActions(d$auth, ['a$register']),
+  async submitRegister() {
+    try {
+      await this.a$register({ name: this.name, username: this.username, password: this.password });
+      this.$router.replace({ name: 'Signin' });
+    } catch (error) {
+      // Handle error
+    }
+  }
+}
 };
 </script>

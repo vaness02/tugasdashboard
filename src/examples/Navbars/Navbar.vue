@@ -16,6 +16,7 @@
         :class="this.$store.state.isRTL ? 'px-0' : 'me-sm-4'"
         id="navbar"
       >
+      
         <div
           class="pe-md-3 d-flex align-items-center"
           :class="this.$store.state.isRTL ? 'me-md-auto' : 'ms-md-auto'"
@@ -49,6 +50,12 @@
               >
               <span v-else class="d-sm-inline d-none">Sign In</span>
             </router-link>
+            <li class="nav-item">
+                  <a href="#" class="nav-link" @click="logout">
+                <i class="ni ni-user-run"></i>
+              <span class="nav-link-text">Logout</span>
+             </a>
+          </li>
           </li>
           <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
             <a
@@ -199,7 +206,70 @@
 </template>
 <script>
 import Breadcrumbs from "../Breadcrumbs.vue";
-import { mapMutations, mapActions } from "vuex";
+import { defineStore } from 'pinia';
+import { setCookies, delCookies } from '@/plugins/cookies';
+
+
+
+
+
+const d$auth = defineStore('auth', {
+  state: () => ({
+    id: undefined,
+    name: undefined,
+    role: undefined,
+  }),
+  actions: {
+    async setUser() {
+      try {
+        const { id, name, role } = certCookies();
+        this.id = id;
+        this.name = name;
+        this.role = role;
+        return 'User Authenticated!';
+      } catch (error) {
+        this.id = undefined;
+        this.name = undefined;
+        this.role = undefined;
+        throw error.message;
+      }
+    },
+    async login(body) {
+      try {
+        const { data } = await s$auth.login(body);
+        setCookies('CERT', data.token, { datetime: data.expiresAt });
+        await this.setUser();
+        return true;
+      } catch ({ error, message }) {
+        throw message ?? error;
+      }
+    },
+    async register(body) {
+      try {
+        const { data } = await s$auth.register(body);
+        setCookies('CERT', data.token, { datetime: data.expiresAt });
+        await this.setUser();
+        return true;
+      } catch ({ error, message }) {
+        throw message ?? error;
+      }
+    },
+    async logout() {
+      try {
+        delCookies('CERT');
+        this.id = undefined;
+        this.name = undefined;
+        this.role = undefined;
+        router.push('/login');
+      } catch (error) {
+        console.error(error);
+      }
+    },
+  },
+  getters: {
+    user: ({ id, name, role }) => ({ id, name, role }),
+  },
+});
 
 export default {
   name: "navbar",
@@ -213,13 +283,18 @@ export default {
     this.minNav;
   },
   methods: {
-    ...mapMutations(["navbarMinimize", "toggleConfigurator"]),
-    ...mapActions(["toggleSidebarColor"]),
-
     toggleSidebar() {
       this.toggleSidebarColor("bg-white");
       this.navbarMinimize();
-    }
+    },
+    logout() {
+      // Tambahkan logika logout di sini
+      d$auth.logout();
+      delCookies('CERT');
+
+      // Redirect pengguna ke halaman login
+      this.$router.push({ name: 'Signin' });
+    },
   },
   components: {
     Breadcrumbs
